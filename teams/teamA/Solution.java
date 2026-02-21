@@ -4,9 +4,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Production Log Aggregator — Round 1 + 2.
- * Точка входа: читает stdin, пишет stdout.
- * Все вспомогательные классы в одном файле.
+ * Production Log Aggregator — Round 1, 2, 4.
+ * Раунд 4: PRESSURE_DROP = макс. падение вперёд во времени (max(p_i - p_j), i < j) в окне.
+ * Точка входа: stdin → stdout.
  */
 public class Solution {
 
@@ -224,30 +224,29 @@ public class Solution {
                 .collect(Collectors.joining(","));
         }
 
+        /**
+         * Раунд 4: максимальное падение давления вперёд во времени внутри окна.
+         * max(pressure_i - pressure_j) по всем окнам, где i < j (j позже по времени).
+         * Только падения; если давление только растёт — 0.
+         */
         private static String answerPressureDrop(String wellId, int windowSize, Map<String, WellStats> wells) {
             if (windowSize <= 0) return Constants.NA;
             WellStats w = wells.get(wellId);
             if (w == null) return Constants.NA;
             List<Double> p = w.getPressures();
             if (p.size() < windowSize) return Constants.NA;
-            return formatDouble(slidingWindowMaxRange(p, windowSize));
+            return formatDouble(slidingWindowMaxForwardDrop(p, windowSize));
         }
 
-        private static double slidingWindowMaxRange(List<Double> a, int w) {
-            Deque<Integer> minDq = new ArrayDeque<>();
-            Deque<Integer> maxDq = new ArrayDeque<>();
+        /** Максимум по всем окнам размера w значения max(p_i - p_j) при i < j внутри окна. */
+        private static double slidingWindowMaxForwardDrop(List<Double> a, int w) {
             double best = 0;
-            for (int i = 0; i < a.size(); i++) {
-                while (!minDq.isEmpty() && a.get(minDq.peekLast()) >= a.get(i)) minDq.pollLast();
-                minDq.addLast(i);
-                while (!maxDq.isEmpty() && a.get(maxDq.peekLast()) <= a.get(i)) maxDq.pollLast();
-                maxDq.addLast(i);
-                int from = i - w + 1;
-                if (from >= 0) {
-                    while (!minDq.isEmpty() && minDq.peekFirst() < from) minDq.pollFirst();
-                    while (!maxDq.isEmpty() && maxDq.peekFirst() < from) maxDq.pollFirst();
-                    double range = a.get(maxDq.peekFirst()) - a.get(minDq.peekFirst());
-                    if (range > best) best = range;
+            for (int s = 0; s + w <= a.size(); s++) {
+                double runMax = a.get(s);
+                for (int j = 1; j < w; j++) {
+                    double drop = runMax - a.get(s + j);
+                    if (drop > best) best = drop;
+                    if (a.get(s + j) > runMax) runMax = a.get(s + j);
                 }
             }
             return best;
