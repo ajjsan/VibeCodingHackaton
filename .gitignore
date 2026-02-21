@@ -1,1 +1,11 @@
 .idea
+my_output.txt
+problems/round2.md
+tests/r1plus/r1plus_01_dedup_last_wins_simple.in
+util/BigInputGen.class
+util/BigInputGen.java
+util/TestRunner.class
+util/TestRunner$DiffInfo.class
+util/TestRunner$RunResult.class
+util/TestRunner$TestCase.class
+.gitignore
