@@ -1,0 +1,5 @@
+QUERIES
+AVG_OIL well_id=AbsentWell
+DATA
+W1,100,1.0,0,0
+END

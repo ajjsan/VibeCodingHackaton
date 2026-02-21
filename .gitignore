@@ -9,3 +9,5 @@ util/TestRunner$DiffInfo.class
 util/TestRunner$RunResult.class
 util/TestRunner$TestCase.class
 .gitignore
+teams/teamC/attacks/run_attacks.ps1
+.gitignore
